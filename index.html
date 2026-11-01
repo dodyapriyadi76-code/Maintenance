@@ -793,7 +793,7 @@ import{initializeApp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-ap
 import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 const auth=getAuth(initializeApp({apiKey:"AIzaSyDOQKSAOFW8BYN5pxMD9cpyc9uMCG_BsR8",authDomain:"cmms-d137a.firebaseapp.com",projectId:"cmms-d137a"}));
 /* ---- penyimpanan data di Cloudflare (Worker + D1) ---- */
-const API="GANTI_ALAMAT_WORKER";
+const API="https://cmms.dody-maintenance.workers.dev";
 const say=m=>{try{toast(m)}catch(e){alert(m)}};
 const lastSent={};let cloudReady=false,pushTimer=null,pushing=false;
 async function api(path,opt={}){
