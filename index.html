@@ -782,7 +782,7 @@ function admPanel(){const dl=$('#dlg');dl.innerHTML=`<div id="adminpanel"><h2>Pe
  $('#hs').onclick=()=>{const v=+$('#hp').value;if(!(v>=1&&v<=24))return $('#ae').textContent='Jam kerja harus 1 sampai 24.';ST.cfg.hpd=v;save();toast('Jam kerja per hari disimpan.')};
  $('#ps').onclick=async()=>{const o=$('#op').value,n=$('#np').value;if(await hashPin(o)!==ST.cfg.pin)return $('#ae').textContent='PIN lama salah.';if(n.length<4)return $('#ae').textContent='PIN baru minimal 4 karakter.';ST.cfg.pin=await hashPin(n);save();$('#op').value='';$('#np').value='';$('#ae').textContent='';toast('PIN admin diganti.')};
  $('#bk').onclick=async()=>{try{const c={...ST,cfg:{...ST.cfg}};delete c.cfg.pin;const r=await saveBlob(new Blob([JSON.stringify(c)],{type:'application/json'}),`ETEL_CMMS_Backup_${ymd(TODAY)}.json`);toast(r=='declined'?'Penyimpanan dibatalkan.':'Backup siap disimpan.')}catch(e){$('#ae').textContent='Backup gagal: '+(e&&e.message||e)}};
- $('#rf').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||typeof d!=='object'||!('upd' in d))throw new Error('Format file tidak dikenali.');const pin=ST.cfg.pin;ST=Object.assign(ST,d);ST.cfg=Object.assign({},d.cfg||{},{pin});save();toast('Data dipulihkan. Memuat ulang...');setTimeout(()=>location.reload(),900)}catch(x){$('#ae').textContent='Gagal memulihkan: '+x.message}};r.readAsText(f)}}
+ $('#rf').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||typeof d!=='object'||!('upd' in d))throw new Error('Format file tidak dikenali.');const pin=ST.cfg.pin;ST=Object.assign(ST,d);ST.cfg=Object.assign({},d.cfg||{},{pin});save();toast('Data dipulihkan. Mengirim ke server...');(window.cloudFlush?window.cloudFlush():Promise.resolve()).then(()=>setTimeout(()=>location.reload(),600))}catch(x){$('#ae').textContent='Gagal memulihkan: '+x.message}};r.readAsText(f)}}
 $('#adm').onclick=()=>{if(isAdm()){try{sessionStorage.removeItem('etel_adm')}catch(e){}admBtn();toast('Mode Admin dikunci.')}else pinDlg()};
 $('#adc').onclick=()=>{if(isAdm())admPanel()};
 admBtn();
@@ -817,6 +817,7 @@ async function pushNow(){
  }finally{pushing=false}
 }
 window.cloudPush=()=>{clearTimeout(pushTimer);pushTimer=setTimeout(pushNow,800)};
+window.cloudFlush=()=>{clearTimeout(pushTimer);return pushNow()};
 async function loadCloud(){
  const r=await api('/api/state');
  if(!r.ok)throw new Error('HTTP '+r.status);
